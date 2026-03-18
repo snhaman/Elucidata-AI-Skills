@@ -35,7 +35,18 @@ Converts a concept note, brief, or proposal into a branded Elucidata slide deck 
 
 ## How to install a skill
 
-Skills are loaded into Claude via the Cowork desktop app. Place the skill folder in your `.skills/skills/` directory and it will be available automatically in your next session.
+**Option 1 — Via the Cowork Customize panel (recommended for most people)**
+
+1. Download or clone this repo to your computer.
+2. Open the Claude desktop app and go to **Cowork → Customize**.
+3. In the **Skills** section, click **Add skill** (or the `+` button).
+4. When prompted, select the skill folder you want to add (e.g. `elucidata-slides` or `concept-note-to-deck`). The folder must contain a `SKILL.md` file at its root.
+5. The skill will appear in your skills list and be active immediately in your next Cowork session.
+6. Repeat for each skill you want to install.
+
+**Option 2 — Manual file placement**
+
+Place the skill folder directly into your `.skills/skills/` directory (the folder Claude watches for skills). It will be picked up automatically on the next session start. No restart needed if Cowork is already running — just start a new conversation.
 
 ---
 
