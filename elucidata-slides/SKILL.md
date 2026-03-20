@@ -162,32 +162,48 @@ const tyB64    = 'image/png;base64,' + fs.readFileSync('./assets/thankyou-bg.png
 - Mode A: map each slide to a layout from [slide-layouts.md](references/slide-layouts.md). Vary layouts — do not repeat the same layout more than twice in a row. Cover and Thank You are optional — only add when explicitly requested.
 - Mode B: use the layout matching table above. For anything that doesn't match, brand pass only.
 
-### 3. Write and run the script in batches
+### 3. Write the full script, then run once
 
-**Never write the entire script in one block.**
+Write the entire deck as a single JS script. Do not split into batches.
 
-Split into batches of 3–4 slides. For every batch:
-1. Write the JS for that batch
-2. Run it immediately to catch errors early
-3. Fix any errors before moving to the next batch
+Before writing, eliminate the most common errors at the source:
+- No `#` in any hex color string — strip it before typing
+- Never assign a shared options object to a variable and reuse it across `addShape`/`addText` calls — write inline objects every time
+- Every rectangle must use `rectRounded` with `rectRadius: 0.12` — no plain `rect`
 
-For long decks (8+ slides), write a helper function per layout type:
+For decks of 8+ slides, use helper functions per layout type to keep the script readable:
 
 ```javascript
-function addContentSlide(pres, { title, bullets }) {
+function addTitleBody(pres, { title, bullets }) {
   const slide = pres.addSlide();
   slide.addText(title, { x:0.5, y:0.3, w:8.7, h:0.55, fontFace:"Space Grotesk", fontSize:22, bold:true, color:"2A263F" });
   // ... body
 }
 ```
 
-### 4. QA
+Once the full script is written, run it once:
+
 ```bash
 node generate-deck.js
+```
+
+If it errors, read the error, fix all issues in a single edit, run once more. Do not run repeatedly in small increments.
+
+### 4. QA — one pass, all issues at once
+
+```bash
 python /mnt/skills/public/pptx/scripts/office/soffice.py --headless --convert-to pdf /mnt/user-data/outputs/deck.pptx
 pdftoppm -jpeg -r 150 /mnt/user-data/outputs/deck.pdf /home/claude/slide
 ```
-View slide images. Fix overflow, color, or layout issues. Re-run until clean.
+
+View all slide images in one go. List every issue found across all slides. Fix all of them in a single edit to the script. Run once more. That is the full QA cycle — do not loop beyond this.
+
+**What to check:**
+- Text overflow or truncation
+- Color token errors (wrong hex, missing accent)
+- Any `rect` shape without `rectRadius`
+- Slide number present on every content slide
+- Logo mark present top-right on every content slide
 
 ### 5. Present
 Present the .pptx and tell the user:
@@ -208,3 +224,4 @@ Present the .pptx and tell the user:
 - **Rounded corners everywhere** — rectRadius: 0.12 minimum on all shapes
 - Cards: white fill, border `E1DFEC`, rectRadius 0.12
 - Font sizes: default to the lower end of each range; reserve large sizes for callouts or stat-only slides
+- **Render copy exactly as provided.** Do not expand bullets into prose, add descriptive text, or rewrite for fullness. This applies especially when called from another skill (e.g., concept-note-to-deck).
